@@ -1,0 +1,31 @@
+name: MAD Linux Trial
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout do repositório privado do MAD Linux
+        run: git clone https://rauldipeas:${{ secrets.GL_PAT }}@gitlab.com/myawesomedistro/madlinux
+
+      - name: Compilação da imagem de teste
+        run: |
+          cd madlinux
+          bash build-trial.sh
+      
+#      - name: Upload da imagem de teste para o Google Drive
+#        run: |
+#          mkdir -pv ~/.config/rclone
+#          wget -qO ~/.config/rclone/rclone.conf ${{ secrets.GOOGLE_DRIVE_AUTH }}
+#          cd madlinux
+#          bash scripts/iso-trial-upload.sh
+
+      - name: Upload da imagem de teste para o SourceForge FRS
+        run: |
+          sshpass -p ${{ secrets.SOURCEFORGE_PASS }} -- \
+          rsync -avP --del -e 'ssh -o StrictHostKeyChecking=no' \
+          ~/madlinux/iso/madlinux-trial.* rauldipeas@frs.sourceforge.net:/home/frs/project/madlinux/iso-trial/

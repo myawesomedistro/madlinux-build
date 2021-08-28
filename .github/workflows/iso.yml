@@ -1,0 +1,25 @@
+name: MAD Linux
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout do repositório privado do MAD Linux
+        run: git clone https://rauldipeas:${{ secrets.GL_PAT }}@gitlab.com/myawesomedistro/madlinux
+
+      - name: Compilação da imagem de instalação
+        run: |
+          cd madlinux
+          bash build.sh
+      
+      - name: Upload da imagem de instalação para o Google Drive
+        run: |
+          mkdir -pv ~/.config/rclone
+          wget -qO ~/.config/rclone/rclone.conf ${{ secrets.GOOGLE_DRIVE_AUTH }}
+          cd madlinux
+          bash scripts/iso-upload.sh
